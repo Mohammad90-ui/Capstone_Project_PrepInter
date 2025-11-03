@@ -39,19 +39,21 @@ After deployment, test:
 
 ### Setup Complete:
 - ✅ Code pushed to GitHub
-- ✅ vercel.json created
+- ✅ vercel.json created (root level)
 - ✅ Build tested locally (dist folder works)
 - ✅ API URL configured in env.example
+- ✅ Code splitting and lazy loading added for performance
+- ✅ Bundle optimization completed
 
 ### Deploy to Vercel:
 1. Go to https://vercel.com
 2. Click **"New Project"**
 3. Import from GitHub: `Mohammad90-ui/Capstone_Project_PrepInter`
 4. Configure:
-   - **Root Directory**: `capstone-project/frontend`
+   - **Root Directory**: `capstone-project` (auto-detected via vercel.json)
    - **Framework Preset**: Vite
-   - **Build Command**: `npm run build`
-   - **Output Directory**: `dist`
+   - **Build Command**: Already configured in vercel.json
+   - **Output Directory**: Already configured in vercel.json
 5. Click **"Deploy"**
 
 ### Configure Environment Variables on Vercel:
