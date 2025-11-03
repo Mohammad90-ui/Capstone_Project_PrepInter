@@ -6,21 +6,29 @@ import PricingSection from './priceSection';
 import HowItWorks from './HowItWorks';
 import Footer from './footer';
 import DotsBg from '../assets/dotbg.png';
+import Silk from './Silk';
 
 
 const Home = () => {
   return (
     <div
       className="w-full min-h-screen overflow-hidden relative font-epilogue"
-      style={{
-        background: 'radial-gradient(ellipse at top left, #000000 0%, #000000 30%, #4E4E4E 100%)',
-      }}
     >
-      <img
+       <div className="absolute inset-0 -z-10">
+    <Silk
+      speed={5}
+      scale={1}
+      color="#FFFFFF"
+      noiseIntensity={1.5}
+      rotation={0}
+      className="w-full h-full"
+    />
+  </div>
+      {/* <img
         src={DotsBg}
         alt="dots"
         className="absolute top-0 left-0 w-full min-h-screen object-cover opacity-80 mix-blend-darken z-0"
-      />
+      /> */}
 
       {/* Navbar */}
       <div className="fixed top-0 left-0 w-full flex items-center justify-between px-8 py-4 text-white bg-black z-50">
@@ -43,19 +51,6 @@ const Home = () => {
 
       {/* Hero Section */}
       <div className="pt-10 min-h-screen ml-10 flex flex-col items-center justify-center relative z-10">
-        <div className="self-start ml-20 mb-2">
-          <p
-            className="text-[#DCFF50] font-semibold italic leading-snug text-left"
-            style={{
-              fontSize: '35px',
-              fontFamily: 'Inclusive Sans'
-            }}
-          >
-            Crush Your <br />
-            Next Interview <br />
-            with
-          </p>
-        </div>
 
         <h1
           className="font-bold bg-gradient-to-r from-white via-[#999] to-black bg-clip-text text-transparent drop-shadow-hero text-[70px] sm:text-[120px] md:text-[160px] lg:text-[200px] leading-tight"

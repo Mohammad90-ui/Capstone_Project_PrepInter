@@ -9,7 +9,7 @@ const interviewSchema = mongoose.Schema(
     category: {
       type: String,
       required: [true, 'Please add a category'],
-      enum: ['frontend', 'backend', 'fullstack'],
+      enum: ['behavioral', 'technical', 'situational', 'softskills'],
     },
     difficulty: {
       type: String,
@@ -22,9 +22,17 @@ const interviewSchema = mongoose.Schema(
           type: String,
           required: true,
         },
+        explanation: {
+          type: String,
+          default: '',
+        },
         aiGenerated: {
           type: Boolean,
           default: true,
+        },
+        skipped: {
+          type: Boolean,
+          default: false,
         },
         answer: {
           type: String,
@@ -39,6 +47,9 @@ const interviewSchema = mongoose.Schema(
     startedAt: {
       type: Date,
       default: Date.now,
+    },
+    completedAt: {
+      type: Date,
     },
     completed: {
       type: Boolean,

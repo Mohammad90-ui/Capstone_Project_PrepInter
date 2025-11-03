@@ -26,16 +26,22 @@ const getNextQuestion = asyncHandler(async (req, res) => {
     if (!nextQuestion) {
       // All questions have been answered
       interview.completed = true;
+      interview.completedAt = new Date();
+      // compute duration in seconds
+      const durationSec = Math.max(0, Math.floor((interview.completedAt - interview.startedAt) / 1000));
+      interview.duration = durationSec;
       await interview.save();
-      return res.status(404).json({
-        message: 'All questions have been answered. Interview complete.'
+      return res.status(200).json({
+        message: 'All questions have been answered. Interview complete.',
+        completed: true 
       });
     }
 
-    // Return the question
+    // Return the question with explanation (for soft skills guidance)
     res.json({
       id: nextQuestion._id,
       question: nextQuestion.questionText,
+      explanation: nextQuestion.explanation || '',
       interviewId: interview._id
     });
   } catch (error) {
@@ -93,7 +99,7 @@ Format your response as a JSON object with 'feedback' and 'score' fields.`;
 
       // Call OpenAI API
       const response = await axios.post(
-        'https://api.openai.com/v1/chat/completions',
+        'https://open-ai21.p.rapidapi.com/conversationllama',
         {
           model: 'gpt-3.5-turbo',
           messages: [
@@ -147,6 +153,16 @@ Format your response as a JSON object with 'feedback' and 'score' fields.`;
     
     await interview.save();
 
+    // If all questions now answered, mark complete and compute duration
+    const allAnswered = interview.questions.every(q => q.answer && q.answer !== '');
+    if (allAnswered && !interview.completed) {
+      interview.completed = true;
+      interview.completedAt = new Date();
+      const durationSec = Math.max(0, Math.floor((interview.completedAt - interview.startedAt) / 1000));
+      interview.duration = durationSec;
+      await interview.save();
+    }
+
     // Return the feedback
     res.json({
       feedback,
@@ -158,7 +174,64 @@ Format your response as a JSON object with 'feedback' and 'score' fields.`;
   }
 });
 
+// @desc    Skip current question and move to next
+// @route   POST /api/interviews/skip
+// @access  Private
+const skipQuestion = asyncHandler(async (req, res) => {
+  try {
+    const interview = await Interview.findOne({
+      userId: req.user._id,
+      completed: false
+    }).sort({ createdAt: -1 });
+
+    if (!interview) {
+      return res.status(404).json({ message: 'No active interview found' });
+    }
+
+    const nextIndex = interview.questions.findIndex(q => !q.answer || q.answer === '');
+    if (nextIndex === -1) {
+      return res.status(200).json({ message: 'All questions have been answered. Interview complete.', completed: true });
+    }
+
+    interview.questions[nextIndex].skipped = true;
+    await interview.save();
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error skipping question:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @desc    Mark interview completed
+// @route   PUT /api/interviews/:id/complete
+// @access  Private
+const completeInterview = asyncHandler(async (req, res) => {
+  try {
+    const { id } = req.params;
+    const interview = await Interview.findById(id);
+    if (!interview) return res.status(404).json({ message: 'Interview not found' });
+    if (interview.userId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized' });
+    }
+
+    if (!interview.completed) {
+      interview.completed = true;
+      interview.completedAt = new Date();
+      if (interview.startedAt) {
+        interview.duration = Math.max(0, Math.floor((interview.completedAt - interview.startedAt) / 1000));
+      }
+      await interview.save();
+    }
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error completing interview:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 module.exports = {
   getNextQuestion,
-  submitAnswer
+  submitAnswer,
+  skipQuestion,
+  completeInterview
 };

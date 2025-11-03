@@ -1,7 +1,54 @@
 // Signup.jsx
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Signup = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  
+  const { register } = useAuth();
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      setLoading(false);
+      return;
+    }
+
+    const result = await register({
+      name: formData.name,
+      email: formData.email,
+      password: formData.password
+    });
+    
+    if (result.success) {
+      navigate('/dashboard');
+    } else {
+      setError(result.error);
+    }
+    
+    setLoading(false);
+  };
+
   return (
     <div className="min-h-screen font-epilogue bg-gradient-to-r from-black to-zinc-100 flex items-center justify-center px-4">
       <div className="bg-white rounded-2xl shadow-xl flex w-full max-w-4xl overflow-hidden">
@@ -11,15 +58,58 @@ const Signup = () => {
         <span style={{ fontFamily: 'Caveat' }}>PrepInter</span>
             </h1>
 
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 w-full">
+              {error}
+            </div>
+          )}
 
-          <input type="text" placeholder="Name" className="border w-full px-4 py-2 mb-4 rounded" />
-          <input type="email" placeholder="Email" className="border w-full px-4 py-2 mb-4 rounded" />
-          <input type="password" placeholder="Password" className="border w-full px-4 py-2 mb-4 rounded" />
-          <input type="password" placeholder="Confirm Password" className="border w-full px-4 py-2 mb-4 rounded" />
+          <form onSubmit={handleSubmit} className="w-full">
+            <input 
+              type="text" 
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Name" 
+              className="border w-full px-4 py-2 mb-4 rounded" 
+              required
+            />
+            <input 
+              type="email" 
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Email" 
+              className="border w-full px-4 py-2 mb-4 rounded" 
+              required
+            />
+            <input 
+              type="password" 
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Password" 
+              className="border w-full px-4 py-2 mb-4 rounded" 
+              required
+            />
+            <input 
+              type="password" 
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              placeholder="Confirm Password" 
+              className="border w-full px-4 py-2 mb-4 rounded" 
+              required
+            />
 
-          <button className="bg-black text-white w-full py-2 rounded mb-2 hover:opacity-90">
-            Sign Up
-          </button>
+            <button 
+              type="submit"
+              disabled={loading}
+              className="bg-black text-white w-full py-2 rounded mb-2 hover:opacity-90 disabled:opacity-50"
+            >
+              {loading ? 'Signing Up...' : 'Sign Up'}
+            </button>
+          </form>
 
           <p className="text-sm mb-2">
             Already have an account? <span className="text-blue-600 cursor-pointer">Sign In</span>
