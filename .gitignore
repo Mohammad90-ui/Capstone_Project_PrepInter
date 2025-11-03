@@ -2,4 +2,14 @@
 **/node_modules/
 **/node_modules - Copy/
 
+# Ignore accidental Windows " - Copy" duplicates (files and folders)
+**/* - Copy/
+**/* - Copy/**
+**/* - Copy.*
+
+# Common build artifacts (optional)
+**/dist/
+**/.vercel/
+**/.cache/
+
 
