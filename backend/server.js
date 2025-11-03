@@ -32,10 +32,20 @@ app.get('/', (req, res) => {
   res.json({ message: 'Welcome to PrepInter API' });
 });
 
-// Error handler middleware
-app.use(errorHandler);
-app.use(validationErrorHandler);
+// Health check route
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK' });
+});
+
+// Ignore favicon requests
+app.get('/favicon.ico', (req, res) => {
+  res.status(204).end();
+});
+
+// Error handler middleware (must be last)
 app.use(notFound);
+app.use(validationErrorHandler);
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
