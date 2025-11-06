@@ -1,6 +1,18 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Get API URL from environment variable
+let API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+// Ensure the URL ends with /api if it doesn't already
+// This handles cases where users might provide just the base URL
+if (!API_BASE_URL.endsWith('/api') && !API_BASE_URL.endsWith('/api/')) {
+  // If it's a full URL without /api, add it
+  if (API_BASE_URL.includes('http')) {
+    API_BASE_URL = API_BASE_URL.endsWith('/') 
+      ? `${API_BASE_URL}api` 
+      : `${API_BASE_URL}/api`;
+  }
+}
 
 // Create axios instance
 const api = axios.create({
